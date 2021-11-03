@@ -22,10 +22,16 @@ export default class SpeechSynthesis {
   }
 
   // Callback functions
-  onend (func) { this.utterance.onend = func }
-  onerror (func) { this.utterance.onerror = func }
+  onend (func) { this.utterance.on('end', func) }
+  onerror (func) { this.utterance.on('error', func) }
+  onboundary (func) { this.utterance.on('boundary', func) }
 
-  speak () {
+  // Playback control
+  enqueue () {
+    window.speechSynthesis.speak(this.utterance)
+  }
+
+  play () {
     window.speechSynthesis.cancel()
     window.speechSynthesis.speak(this.utterance)
   }

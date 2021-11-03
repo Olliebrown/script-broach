@@ -5,7 +5,7 @@ import { ThemeProvider, createTheme } from '@material-ui/core/styles'
 import { orange } from '@material-ui/core/colors'
 import { CssBaseline } from '@material-ui/core'
 
-import App from './app.jsx'
+import App from './App.jsx'
 
 const theme = createTheme({
   status: {

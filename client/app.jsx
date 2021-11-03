@@ -4,6 +4,7 @@ import { makeStyles } from '@material-ui/core/styles'
 import { Container, Typography, Grid } from '@material-ui/core'
 
 import Speaker from './Components/Speaker.jsx'
+import Dictaphone from './Components/Dictaphone.jsx'
 
 const useStyles = makeStyles((theme) => ({
   pageHeader: {
@@ -28,6 +29,10 @@ export default function App () {
       <Grid container spacing={2}>
         <Grid item xs={12}>
           <Speaker />
+        </Grid>
+
+        <Grid item xs={12}>
+          <Dictaphone />
         </Grid>
       </Grid>
     </Container>

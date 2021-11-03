@@ -1,7 +1,7 @@
 {
-  "name": "esnext-esbuild-mui",
-  "version": "0.2.0",
-  "description": "A basic material-ui template derived from esnext-esbuild-react and with similar goals.",
+  "name": "script-broach",
+  "version": "0.1.0",
+  "description": "A script reading coach to help with memorization in live plays.",
   "main": "client/main.jsx",
   "type": "module",
   "scripts": {
@@ -14,7 +14,7 @@
   },
   "author": "Seth Berrier",
   "license": "MIT",
-  "repository": "github:Olliebrown/esnext-esbuild-mui",
+  "repository": "github:Olliebrown/script-broach",
   "devDependencies": {
     "@material-ui/core": "^4.12.3",
     "@material-ui/icons": "^4.11.2",

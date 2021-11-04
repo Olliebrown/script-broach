@@ -7,8 +7,13 @@ import { LinesQueueState, EnqueueLinesState, DequeueLinesState } from '../src/gl
 
 import { Button, Grid, Typography } from '@material-ui/core'
 
-import Lines from '../src/Lines.js'
+import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition'
+import Levenshtein from 'fast-levenshtein'
+
+import { lineFactory } from '../src/Lines.js'
 import SpeechSynthesis from '../src/synthesis.js'
+
+const activeCharacter = 'BRIAN'
 
 export default function App () {
   // Global state management
@@ -20,6 +25,11 @@ export default function App () {
   const [isPlaying, setIsPlaying] = useState(false)
   const [isPaused, setIsPaused] = useState(false)
   const [utterance, setUtterance] = useState(null)
+
+  // Speech recognition state
+  const {
+    transcript, listening, resetTranscript
+  } = useSpeechRecognition()
 
   // Callback functions
   const handlePlay = () => {
@@ -59,6 +69,11 @@ export default function App () {
     setIsPaused(false)
   }
 
+  const handleNext = (event) => {
+    resetTranscript()
+    dequeueLines()
+  }
+
   // Manage the queue
   const handleEnd = (event) => {
     dequeueLines()
@@ -66,35 +81,36 @@ export default function App () {
 
   useEffect(() => {
     if (currentLines !== null) {
-      const newSynthesis = new SpeechSynthesis({ text: currentLines.text })
-      newSynthesis.onend(handleEnd)
-      setUtterance(newSynthesis)
+      if (currentLines.character === activeCharacter) {
+        if (!listening) { SpeechRecognition.startListening({ continuous: true }) }
+        else { resetTranscript() }
+      } else {
+        if (listening) { SpeechRecognition.stopListening() }
+        const newSynthesis = new SpeechSynthesis({ text: currentLines.text })
+        newSynthesis.onend(handleEnd)
+        setUtterance(newSynthesis)
 
-      if (isPlaying) { newSynthesis.play() }
+        if (isPlaying) { newSynthesis.play() }
+      }
     }
   }, [currentLines])
+
+  // Move forward once lines match well enough
+  useEffect(() => {
+    if (listening && Levenshtein.get(transcript, currentLines.text) < 10) {
+      resetTranscript()
+      dequeueLines()
+    }
+  }, [transcript])
 
   useEffect(() => {
     // Asynchronous text retrieval function
     const retrieveText = async () => {
       try {
-        const response = await Axios.get('./shadowbox/Act1-Pg48.txt')
+        const response = await Axios.get('./shadowbox/Act1-Pg37.txt')
         if (typeof response?.data === 'string') {
-          const matches = response?.data.match(/^(?<character>[A-Z ]+\.)(?<text>.*?)(?:\r?\n)(?:\r?\n)/gms)
-          if (matches) {
-            const rawLines = []
-            matches.forEach((match) => {
-              const result = match.match(/^(?<character>[A-Z ]+)\.(?<text>.*?)(?:\r?\n)(?:\r?\n)/ms)
-              result.groups.text.split('\n').forEach((text) => {
-                rawLines.push(new Lines(text, result.groups.character))
-              })
-            })
-            enqueueLines(rawLines)
-          } else {
-            console.log('No matches')
-            const rawLines = response.data.split('\n')
-            enqueueLines(rawLines)
-          }
+          const newLines = lineFactory(response.data)
+          enqueueLines(newLines)
         }
       } catch (err) {
         console.error('Failed to download text')
@@ -108,24 +124,42 @@ export default function App () {
 
   return (
     <Grid container spacing={2}>
-      <Grid item xs={4}>
+      <Grid item xs={3}>
         <Button variant="contained" fullWidth disabled={isPlaying && !isPaused} onClick={handlePlay}>{'Play'}</Button>
       </Grid>
-      <Grid item xs={4}>
+      <Grid item xs={3}>
         <Button variant="contained" fullWidth disabled={isPaused || !isPlaying} onClick={handlePause}>{'Pause'}</Button>
       </Grid>
-      <Grid item xs={4}>
+      <Grid item xs={3}>
         <Button variant="contained" fullWidth disabled={!isPlaying} onClick={handleStop}>{'Stop'}</Button>
       </Grid>
+      <Grid item xs={3}>
+        <Button variant="contained" fullWidth disabled={!listening} onClick={handleNext}>{'Next'}</Button>
+      </Grid>
       {linesQueue.map((curLines, i) => (
-        <React.Fragment key={i}>
-          <Grid item xs={2}>
-            <Typography variant="body1">{curLines.character}</Typography>
-          </Grid>
-          <Grid item xs={10}>
-            <Typography variant="body2">{curLines.text}</Typography>
-          </Grid>
-        </React.Fragment>
+        (i === 0 && curLines.character === activeCharacter
+          ? <React.Fragment key={i}>
+            <Grid item xs={3} md={2}>
+              <Typography variant="body1">{curLines.character}</Typography>
+            </Grid>
+            <Grid item xs={9} md={10}>
+              <Typography variant="body2">{curLines.text}</Typography>
+            </Grid>
+            <Grid item xs={3} md={2}>
+              <Typography variant="body1">{''}</Typography>
+            </Grid>
+            <Grid item xs={9} md={10}>
+              <Typography variant="body2">{transcript}</Typography>
+            </Grid>
+          </React.Fragment>
+          : <React.Fragment key={i}>
+            <Grid item xs={3} md={2}>
+              <Typography variant="body1">{curLines.character}</Typography>
+            </Grid>
+            <Grid item xs={9} md={10}>
+              <Typography variant="body2">{curLines.text}</Typography>
+            </Grid>
+          </React.Fragment>)
       ))}
     </Grid>
   )

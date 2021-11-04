@@ -25,9 +25,6 @@ export default function App () {
       </Typography>
       <Grid container spacing={2}>
         <Grid item xs={12}>
-          <Dictaphone />
-        </Grid>
-        <Grid item xs={12}>
           <Speechify />
         </Grid>
       </Grid>

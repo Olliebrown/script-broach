@@ -1,6 +1,6 @@
 import { atom, selector } from 'recoil'
 
-import Lines from './Lines.js'
+import { Lines } from './Lines.js'
 
 export const LinesQueueState = atom({
   key: 'LinesQueueState',

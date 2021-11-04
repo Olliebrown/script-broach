@@ -4,6 +4,8 @@ import 'regenerator-runtime/runtime'
 import React from 'react'
 import ReactDOM from 'react-dom'
 
+import { RecoilRoot } from 'recoil'
+
 import { ThemeProvider, createTheme } from '@material-ui/core/styles'
 import { orange } from '@material-ui/core/colors'
 import { CssBaseline } from '@material-ui/core'
@@ -17,11 +19,11 @@ const theme = createTheme({
 })
 
 ReactDOM.render(
-  <React.Fragment>
+  <RecoilRoot>
     <CssBaseline />
     <ThemeProvider theme={theme}>
       <App />
     </ThemeProvider>
-  </React.Fragment>,
+  </RecoilRoot>,
   document.getElementById('root')
 )

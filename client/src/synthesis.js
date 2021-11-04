@@ -22,9 +22,9 @@ export default class SpeechSynthesis {
   }
 
   // Callback functions
-  onend (func) { this.utterance.on('end', func) }
-  onerror (func) { this.utterance.on('error', func) }
-  onboundary (func) { this.utterance.on('boundary', func) }
+  onend (func) { this.utterance.addEventListener('end', func) }
+  onerror (func) { this.utterance.addEventListener('error', func) }
+  onboundary (func) { this.utterance.addEventListener('boundary', func) }
 
   // Playback control
   enqueue () {
